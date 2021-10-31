@@ -98,7 +98,7 @@ T_hour = (T_sec/60)/60;
        
        ConvOuterWall2Air = Outer2AirWallh * AreaofWall * (OutsideAirTemp - OuterWallTemp); %convection from outside wall to outside air
        
-       CondInner2OuterWall = - (1/WallResistance) * AreaofWall * (InteriorWallTemp - OutsideWallTemp); %Conduction through the wall
+       CondInner2OuterWall = - (1/WallResistance) * AreaofWall * (InteriorWallTemp - OuterWallTemp); %Conduction through the wall
        
        CondInner2OuterWindow = - (1/WindowResistance) * AreaofWindow * (InteriorWindowTemp - OuterWindowTemp); %Conduction through the Window
        
@@ -112,7 +112,7 @@ T_hour = (T_sec/60)/60;
        
        OuterWallEnergy = OuterWallInitialEnergy + -(CondInner2OuterWall) + ConvOuterWall2Air;
        
-       res = [InsideAirEnergy];
+       res = [InsideAirEnergy;InteriorWallEnergy;InteriorWindowEnergy;OuterWindowEnergy;OuterWallEnergy];
        
    end
 
