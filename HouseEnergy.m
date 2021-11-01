@@ -42,7 +42,7 @@ Outer2AirWindowh = 137.5; %(W/m^2K)
 
 Outer2AirWallh = 137.5; %(W/m^2K)
 
-floorabsorptionefficiency = .7; %ratio so no units
+floorabsorptionefficiency = .32; %ratio so no units
 
 Insolation = 187.5; %(W/m^2)
 
@@ -58,13 +58,27 @@ OuterWindowInitialEnergy = MassofWindow * SpecificHeatWindow * OutsideInitialTem
 
 OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperature; %(J)
 
-InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy];
+InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy]';
 
-TimeSpan = [0 30*60*60];
+TimeSpan = [0 (200*60*60)];
 
 [T_sec, M] = ode45(@rate_func, TimeSpan, InitialValues);
 
 T_hour = (T_sec/60)/60;
+
+M(:,1) = M(:,1) ./ (MassofAir * SpecificHeatAir); %converts our energy to temperature
+
+M(:,2) = M(:,2) ./ (MassofWall * SpecificHeatWall);
+
+M(:,3) = M(:,3) ./ (MassofWindow * SpecificHeatWindow);
+
+M(:,4) = M(:,4) ./ (MassofWindow * SpecificHeatWindow);
+
+M(:,5) = M(:,5) ./ (MassofWall * SpecificHeatWall);
+
+
+
+
 
    function res = rate_func(~, U)
        
@@ -88,6 +102,10 @@ T_hour = (T_sec/60)/60;
        
        OuterWallTemp = OuterWallEnergy / (MassofWall * SpecificHeatWall); %updates the temperature of outer wall
        
+              
+
+       
+       
        Solar = floorabsorptionefficiency * Insolation * AreaofWindow; %Solar Energy coming in
        
        ConvInside2InnerWindow = Inside2InnerWindowh * AreaofWindow * (AirTemp - InteriorWindowTemp); %convection from inside air to inner window
@@ -102,17 +120,19 @@ T_hour = (T_sec/60)/60;
        
        CondInner2OuterWindow = - (1/WindowResistance) * AreaofWindow * (InteriorWindowTemp - OuterWindowTemp); %Conduction through the Window
        
-       InsideAirEnergy = InsideInitialEnergy + Solar +  ConvInside2InnerWindow + ConvInside2InnerWall;
        
-       InteriorWallEnergy = InnerWallInitialEnergy + -(ConvInside2InnerWall) + CondInner2OuterWall;
+        InsideAirWatts = Solar +  -ConvInside2InnerWindow + -ConvInside2InnerWall; %I believe the problem is that it is adding the starting energy to itself
        
-       InteriorWindowEnergy = InnerWindowInitialEnergy + -(ConvInside2InnerWindow) + CondInner2OuterWindow;
+       InteriorWallWatts = ConvInside2InnerWall + CondInner2OuterWall;
        
-       OuterWindowEnergy = OuterWindowInitialEnergy + -(CondInner2OuterWindow) + ConvOuterWindow2Air;
+       InteriorWindowWatts =  ConvInside2InnerWindow + CondInner2OuterWindow;
        
-       OuterWallEnergy = OuterWallInitialEnergy + -(CondInner2OuterWall) + ConvOuterWall2Air;
+       OuterWindowWatts =  -(CondInner2OuterWindow) + ConvOuterWindow2Air;
        
-       res = [InsideAirEnergy;InteriorWallEnergy;InteriorWindowEnergy;OuterWindowEnergy;OuterWallEnergy];
+       OuterWallWatts =  -(CondInner2OuterWall) + ConvOuterWall2Air;
+
+       
+       res = [InsideAirWatts, InteriorWallWatts,InteriorWindowWatts, OuterWindowWatts, OuterWallWatts]';
        
    end
 
