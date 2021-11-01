@@ -1,4 +1,4 @@
-function [T,U] = housestep(T,U,OutsideAirTemp,AreaofWall,AreaofWindow,Inside2InnerWallh,Inside2InnerWindowh,HeatCapacityofAir,HeatCapacityofInteriorWall,HeatCapacityofInteriorWindow,HeatCapacityofOuterWall,HeatCapacityofOuterWindow,Inside2OuterWallr,Inside2OuterWindowr)
+function [T,U] = housestep(T,U,dT,OutsideAirTemp,AreaofWall,AreaofWindow,Inside2InnerWallh,Inside2InnerWindowh,HeatCapacityofAir,HeatCapacityofInteriorWall,HeatCapacityofInteriorWindow,HeatCapacityofOuterWall,HeatCapacityofOuterWindow,Inside2OuterWallr,Inside2OuterWindowr)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -15,8 +15,8 @@ OuterWallEnergy = U(5);
 en2inwa = Inside2InnerWallh * AreaofWall * ( (HeatCapacityofInteriorWall*InteriorWallEnergy) - (HeatCapacityofAir*InsideEnergy));
 en2inwi = Inside2InnerWindowh * AreaofWindow * ( (HeatCapacityofInteriorWindow*InteriorWindowEnergy) - (HeatCapacityofAir*InsideEnergy));
 
-en2ouwa = AreaofWall / Inner2OuterWallr * ( (HeatCapacityofOuterWall*OuterWallEnergy) - (HeatCapacityofInteriorWall*InteriorWallEnergy));
-en2ouwi =  AreaofWindow / Inner2OuterWindowr * ( (HeatCapacityofOuterWindow*OuterWindowEnergy) - (HeatCapacityofInteriorWindow*InteriorWindowEnergy)));
+en2ouwa = AreaofWall / Inside2OuterWallr * ( (HeatCapacityofOuterWall*OuterWallEnergy) - (HeatCapacityofInteriorWall*InteriorWallEnergy));
+en2ouwi =  AreaofWindow / Inside2OuterWindowr * ( (HeatCapacityofOuterWindow*OuterWindowEnergy) - (HeatCapacityofInteriorWindow*InteriorWindowEnergy)));
 
 en2owasd = Inside2OuterWallh * AreaofWall * ( (HeatCapacityofOuterWall*OuterWallEnergy) - OutsideAirTemp));
 en2owisd = Inside2OuterWindowh * AreaofWindow * ( (HeatCapacityofOuterWindow*OuterWindowEnergy) - OutsideAirTemp);
@@ -24,13 +24,14 @@ en2owisd = Inside2OuterWindowh * AreaofWindow * ( (HeatCapacityofOuterWindow*Out
 solarinputenergy = floorabsorptionefficiency * Insolation * AreaofWindow;
 
 
-InsideEnergy = InsideEnergy + solarinputenergy - en2inwa - en2inwi;
-InteriorWallEnergy = InteriorWallEnergy + en2inwa - en2ouwa;
-InteriorWindowEnergy = InteriorWindowEnergy + en2inwi - en2ouwi;
-OuterWindowEnergy = OuterWindowEnergy + en2ouwa - en2owasd;
-OuterWallEnergy = OuterWallEnergy + en2ouwi - en2owisd;
+dInsideEnergy =         solarinputenergy - en2inwa - en2inwi;
+dInteriorWallEnergy =   en2inwa - en2ouwa;
+dInteriorWindowEnergy = en2inwi - en2ouwi;
+dOuterWindowEnergy =    en2ouwa - en2owasd;
+dOuterWallEnergy =      en2ouwi - en2owisd;
 
-U = [InsideEnergy; InteriorWallEnergy; InteriorWindowEnergy; OuterWindowEnergy; OuterWallEnergy];
+U = [dInsideEnergy; dInteriorWallEnergy; dInteriorWindowEnergy; dOuterWindowEnergy; dOuterWallEnergy];
+U = U*dT;
 end
 
 
