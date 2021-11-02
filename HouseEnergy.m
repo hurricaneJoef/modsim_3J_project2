@@ -20,7 +20,7 @@ WaterMass = (0.012065^2*pi())*50 * 997; %total water mass inside the radiant flo
 
 SpecificHeatWater =  4186;  %(J/K/kg)
 
-InsideInitialEnergy = 271368676.3; %(J)
+insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater %+ MassofWood * SpecificHeatWater;
 
 DensityofWall = 22; %(kg/m^3)
 
@@ -60,6 +60,8 @@ MassofWall = DensityofWall * AreaofWall * (ThicknessofWall/2); %(kg) accounts fo
 
 MassofWindow = DensityofWindow * AreaofWindow * (ThicknessofWindow/2); %(kg) accounts for half the window
 
+InsideInitialEnergy = InsideInitialTemperature*insideThermalMass; %(J)
+
 InnerWallInitialEnergy = MassofWall * SpecificHeatWall * InsideInitialTemperature; %(J)
 
 InnerWindowInitialEnergy = MassofWindow * SpecificHeatWindow * InsideInitialTemperature; %(J)
@@ -68,7 +70,7 @@ OuterWindowInitialEnergy = MassofWindow * SpecificHeatWindow * OutsideInitialTem
 
 OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperature; %(J)
 
-insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater %+ MassofWood * SpecificHeatWater;
+
 
 
 
