@@ -20,7 +20,7 @@ WaterMass = (0.012065^2*pi())*50 * 997; %total water mass inside the radiant flo
 
 SpecificHeatWater =  4186;  %(J/K/kg)
 
-insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater % total thermal mass inside the house(air + in floor heating)
+insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater + WoodSpecificHeat * MassofWood;% total thermal mass inside the house(air + in floor heating)
 
 DensityofWall = 139;%22; %(kg/m^3)
 
@@ -109,7 +109,7 @@ M(:,5) = M(:,5) ./ (MassofWall * SpecificHeatWall);
        
        OuterWallEnergy = U(5);
        
-       Insolation = max(0,.23*(-361*cos(pi*t/(12*3600)) + 224*cos(pi*t/(6*3600)) + 210)); %187.5  q in W/m^2, t in seconds
+       Insolation = max(0,.23*(-361*cos(pi*t/(12*3600)) + 224*cos(pi*t/(6*3600)) + 210)); %q in W/m^2, t in seconds
     
        AirTemp = InsideAirEnergy / insideThermalMass; %updates temperature of Inside Air based on Energy
        
