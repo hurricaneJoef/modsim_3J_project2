@@ -10,21 +10,21 @@ cost = 40.82*AreaofWall + 500*AreaofWindow; %material cost of wall + window
 
 MassofAir = 910.175; %(kg)
 
-SpecificHeatAir = 1000; %(J/(K*kg))
+SpecificHeatAir = 1000; %(J/(K*kg)) 
 
 MassofWood = 500; % estimate of how much wood is on the inside of the house
 
-WoodSpecificHeat = 2300; %(J/(K*g))  https://material-properties.org/pine-wood-density-strength-melting-point-thermal-conductivity/
+WoodSpecificHeat = 2300; %(J/(K*kg))  https://material-properties.org/pine-wood-density-strength-melting-point-thermal-conductivity/
 
 WaterMass = (0.012065^2*pi())*50 * 997; %total water mass inside the radiant floor heating
 
 SpecificHeatWater =  4186;  %(J/K/kg)
 
-insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater %+ MassofWood * SpecificHeatWater;
+insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater % total thermal mass inside the house(air + in floor heating)
 
-DensityofWall = 22; %(kg/m^3)
+DensityofWall = 139;%22; %(kg/m^3)
 
-SpecificHeatWall = 700; %(J/K/kg)
+SpecificHeatWall = 1620;%700; %(J/K/kg)
 
 DensityofWindow = 2500; %(kg/m^3)
 
@@ -52,7 +52,7 @@ Outer2AirWindowh = 137.5; %(W/m^2K)
 
 Outer2AirWallh = 137.5; %(W/m^2K)
 
-floorabsorptionefficiency = .32; %ratio so no units
+floorabsorptionefficiency = .32; %ratio so no units (directly from the sticker on the windows)
 
 Insolation = 187.5; %(W/m^2)
 
@@ -77,7 +77,7 @@ OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperatu
 
 InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy]';
 
-TimeSpan = [0 (200*60*60)];
+TimeSpan = [0 (400*60*60)];
 
 [T_sec, M] = ode45(@rate_func, TimeSpan, InitialValues);
 
@@ -140,18 +140,18 @@ M(:,5) = M(:,5) ./ (MassofWall * SpecificHeatWall);
        CondInner2OuterWindow = - (1/WindowResistance) * AreaofWindow * (InteriorWindowTemp - OuterWindowTemp); %Conduction through the Window
        
        
-        InsideAirWatts = Solar +  -ConvInside2InnerWindow + -ConvInside2InnerWall; %I believe the problem is that it is adding the starting energy to itself
+        InsideAirWatts = Solar +  -ConvInside2InnerWindow + -ConvInside2InnerWall; %net flow of the interior of the house
        
-       InteriorWallWatts = ConvInside2InnerWall + CondInner2OuterWall;
+       InteriorWallWatts = ConvInside2InnerWall + CondInner2OuterWall;       %net flow of the interior wall of the house
        
-       InteriorWindowWatts =  ConvInside2InnerWindow + CondInner2OuterWindow;
+       InteriorWindowWatts =  ConvInside2InnerWindow + CondInner2OuterWindow;%net flow of the interior window of the house
        
-       OuterWindowWatts =  -(CondInner2OuterWindow) + ConvOuterWindow2Air;
+       OuterWindowWatts =  -(CondInner2OuterWindow) + ConvOuterWindow2Air;%net flow of the exterior window of the house
        
-       OuterWallWatts =  -(CondInner2OuterWall) + ConvOuterWall2Air;
+       OuterWallWatts =  -(CondInner2OuterWall) + ConvOuterWall2Air;%net flow of the exterior wall of the house
 
        
-       res = [InsideAirWatts, InteriorWallWatts,InteriorWindowWatts, OuterWindowWatts, OuterWallWatts]';
+       res = [InsideAirWatts, InteriorWallWatts,InteriorWindowWatts, OuterWindowWatts, OuterWallWatts]';%output it all
        
    end
 
