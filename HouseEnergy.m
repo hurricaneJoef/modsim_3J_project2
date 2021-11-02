@@ -1,10 +1,12 @@
-function [T_hour,M] = HouseEnergy()
+function [T_hour, M, cost] = HouseEnergy(AreaofWindow)
 
 TotalHouseArea = 442; %(m^2)
 
-AreaofWindow = 10; %(m^2) will eventually sweep
+%AreaofWindow = 10; %(m^2) will eventually sweep
 
 AreaofWall = TotalHouseArea - AreaofWindow; %(m^2)
+
+cost = 40.82*AreaofWall + 500*AreaofWindow; %material cost of wall + window
 
 MassofAir = 910.175; %(kg)
 
@@ -60,7 +62,7 @@ OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperatu
 
 InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy]';
 
-TimeSpan = [0 (200*60*60)];
+TimeSpan = [0 (40*60*60)];
 
 [T_sec, M] = ode45(@rate_func, TimeSpan, InitialValues);
 
@@ -80,7 +82,7 @@ M(:,5) = M(:,5) ./ (MassofWall * SpecificHeatWall);
 
 
 
-   function res = rate_func(~, U)
+   function res = rate_func(t, U)
        
        InsideAirEnergy = U(1);
        
@@ -91,6 +93,8 @@ M(:,5) = M(:,5) ./ (MassofWall * SpecificHeatWall);
        OuterWindowEnergy = U(4);
        
        OuterWallEnergy = U(5);
+       
+       Insolation = max(0,.23*(-361*cos(pi*t/(12*3600)) + 224*cos(pi*t/(6*3600)) + 210)); %187.5  q in W/m^2, t in seconds
     
        AirTemp = InsideAirEnergy / (MassofAir * SpecificHeatAir); %updates temperature of Inside Air based on Energy
        
