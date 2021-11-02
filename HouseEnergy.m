@@ -10,7 +10,15 @@ cost = 40.82*AreaofWall + 500*AreaofWindow; %material cost of wall + window
 
 MassofAir = 910.175; %(kg)
 
-SpecificHeatAir = 1000; %(J/K/kg)
+SpecificHeatAir = 1000; %(J/(K*kg))
+
+MassofWood = 500; % estimate of how much wood is on the inside of the house
+
+WoodSpecificHeat = 2300; %(J/(K*g))  https://material-properties.org/pine-wood-density-strength-melting-point-thermal-conductivity/
+
+WaterMass = (0.012065^2*pi())*50 * 997; %total water mass inside the radiant floor heating
+
+SpecificHeatWater =  4186;  %(J/K/kg)
 
 InsideInitialEnergy = 271368676.3; %(J)
 
@@ -60,15 +68,20 @@ OuterWindowInitialEnergy = MassofWindow * SpecificHeatWindow * OutsideInitialTem
 
 OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperature; %(J)
 
+insideThermalMass = MassofAir * SpecificHeatAir + WaterMass * SpecificHeatWater %+ MassofWood * SpecificHeatWater;
+
+
+
+
 InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy]';
 
-TimeSpan = [0 (40*60*60)];
+TimeSpan = [0 (200*60*60)];
 
 [T_sec, M] = ode45(@rate_func, TimeSpan, InitialValues);
 
 T_hour = (T_sec/60)/60;
 
-M(:,1) = M(:,1) ./ (MassofAir * SpecificHeatAir); %converts our energy to temperature
+M(:,1) = M(:,1) ./ insideThermalMass; %converts our energy to temperature
 
 M(:,2) = M(:,2) ./ (MassofWall * SpecificHeatWall);
 
@@ -96,7 +109,7 @@ M(:,5) = M(:,5) ./ (MassofWall * SpecificHeatWall);
        
        Insolation = max(0,.23*(-361*cos(pi*t/(12*3600)) + 224*cos(pi*t/(6*3600)) + 210)); %187.5  q in W/m^2, t in seconds
     
-       AirTemp = InsideAirEnergy / (MassofAir * SpecificHeatAir); %updates temperature of Inside Air based on Energy
+       AirTemp = InsideAirEnergy / insideThermalMass; %updates temperature of Inside Air based on Energy
        
        InteriorWallTemp = InteriorWallEnergy / (MassofWall * SpecificHeatWall); %updates temperature of inner wall
        
