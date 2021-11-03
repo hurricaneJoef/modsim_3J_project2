@@ -77,7 +77,7 @@ OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperatu
 
 InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy]';
 
-TimeSpan = [0 (400*60*60)];
+TimeSpan = [0 (24*100*60*60)];
 
 [T_sec, M] = ode45(@rate_func, TimeSpan, InitialValues);
 
