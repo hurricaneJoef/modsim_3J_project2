@@ -36,7 +36,7 @@ ThicknessofWindow = .006; %(m)
 
 InsideInitialTemperature = 298.15; %(K)
 
-OutsideInitialTemperature = 288.706; %(K)
+OutsideInitialTemperature = -15+273.15; %(K)
 
 OutsideAirTemp = 288.706; %(K)
 
@@ -77,7 +77,7 @@ OuterWallInitialEnergy = MassofWall * SpecificHeatWall * OutsideInitialTemperatu
 
 InitialValues = [InsideInitialEnergy, InnerWallInitialEnergy, InnerWindowInitialEnergy, OuterWindowInitialEnergy, OuterWallInitialEnergy]';
 
-TimeSpan = [0 (24*100*60*60)];
+TimeSpan = [0 (24*42*60*60)];
 
 [T_sec, M] = ode45(@rate_func, TimeSpan, InitialValues);
 
